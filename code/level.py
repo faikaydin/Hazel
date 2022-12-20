@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 from tile import Tile
+from support import import_csv_layout
 from player import Player
 
 
@@ -18,14 +19,23 @@ class Level:
         self.create_map()
 
     def create_map(self):
-        for row_index, row in enumerate(WORLD_MAP):
-            for col_index, col in enumerate(row):
-                x, y = col_index * TILESIZE, row_index * TILESIZE
-                if col == "x":
-                    Tile((x, y), (self.visible_sprites, self.obstacle_sprites))
-                if col == "p":
-                    self.player = Player((x, y), (self.visible_sprites), self.obstacle_sprites)
+        layouts = {
 
+            "boundary": import_csv_layout("map/map_FloorBlocks.csv")
+
+        }
+
+        for style, layout in layouts.items():
+            for row_index, row in enumerate(layout):
+                for col_index, col in enumerate(row):
+                    if col != '-1':
+                        x, y = col_index * TILESIZE, row_index * TILESIZE
+                        if style == 'boundary':
+                            Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'invisible')
+                    else:
+                        pass
+
+        self.player = Player((2000, 1430), (self.visible_sprites), self.obstacle_sprites)
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
@@ -42,12 +52,26 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.half_height = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
 
+        # creating the floor
+        self.floor_surf = pygame.image.load("graphics/tilemap/ground.png").convert()
+        self.floor_rect = self.floor_surf.get_rect(topleft=(0,0))
+
+
     def custom_draw(self, player):
+
         # getting offset
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
+        # drawing the floor with offset w/ to player
+        offset_pos = self.floor_rect.topleft - self.offset
+        self.display_surface.blit(self.floor_surf, offset_pos)
+
         # drawing all sprites w/ to player
-        for sprite in self.sprites():
+        # usually the order of draw is based on when the sprite is created (in the level map above)
+        # we need to sort by Y-Position
+        # for this use sorted(sprites, key= lambda sprite: sprite.rect.centery) -> Y position of each sprite)
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
+
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
