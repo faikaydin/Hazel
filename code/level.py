@@ -1,7 +1,8 @@
 import pygame
+from numpy.random import randint
 from settings import *
 from tile import Tile
-from support import import_csv_layout
+from support import import_csv_layout, import_folder
 from player import Player
 
 
@@ -21,8 +22,15 @@ class Level:
     def create_map(self):
         layouts = {
 
-            "boundary": import_csv_layout("map/map_FloorBlocks.csv")
+            "boundary": import_csv_layout("map/map_FloorBlocks.csv"),
+            "grass": import_csv_layout("map/map_Grass.csv"),
+            "object": import_csv_layout("map/map_Objects.csv")
 
+        }
+
+        graphics = {
+            'grass' : import_folder("graphics/grass"),
+            'object': import_folder("graphics/objects")
         }
 
         for style, layout in layouts.items():
@@ -31,7 +39,11 @@ class Level:
                     if col != '-1':
                         x, y = col_index * TILESIZE, row_index * TILESIZE
                         if style == 'boundary':
-                            Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'invisible')
+                            Tile((x,y), (self.obstacle_sprites), 'invisible')
+                        if style == 'grass':
+                            Tile((x,y), (self.visible_sprites, self.obstacle_sprites), 'grass', graphics['grass'][randint(3)] )
+                        if style == 'object':
+                            Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object',graphics['object'][int(col)])
                     else:
                         pass
 
