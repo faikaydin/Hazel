@@ -7,25 +7,33 @@ from support import import_folder
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack):
         super().__init__(groups)
+
+        # core pygame attributes
         self.image = pygame.image.load('graphics/test/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(0, -26)
 
-        self.import_player_assets()
-        self.status = 'down'
-        self.obstacle_sprites = obstacle_sprites
-
+        # animation attributes
         self.frame_index = 0
         self.animation_speed = 0.15
+        self.status = 'down'
         self.direction = pygame.math.Vector2()
+
+        # importing player asset files
+        self.import_player_assets()
+        self.obstacle_sprites = obstacle_sprites
+
+        # player movement
         self.speed = 5
+
+        # attacking
         self.attacking = False
         self.attack_cooldown = 400
         self.attack_time = None
-
-        # weapon
         self.destroy_attack = destroy_attack
         self.create_attack = create_attack
+
+        # weapon
         self.weapon_index = 0
         self.weapon = list(weapon_data.keys())[self.weapon_index]
         self.can_switch_weapon = True
@@ -42,7 +50,6 @@ class Player(pygame.sprite.Sprite):
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
 
-
     def move(self, speed):
 
         if self.direction.magnitude() != 0:
@@ -58,17 +65,17 @@ class Player(pygame.sprite.Sprite):
         if direction == "horizontal":
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.x > 0: # player is moving right
+                    if self.direction.x > 0:  # player is moving right
                         self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0: # player is moving left
+                    if self.direction.x < 0:  # player is moving left
                         self.hitbox.left = sprite.hitbox.right
 
         if direction == "vertical":
             for sprite in self.obstacle_sprites:
                 if sprite.hitbox.colliderect(self.hitbox):
-                    if self.direction.y > 0: # player is moving down
+                    if self.direction.y > 0:  # player is moving down
                         self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0: # player is moving up
+                    if self.direction.y < 0:  # player is moving up
                         self.hitbox.top = sprite.hitbox.bottom
 
     def input(self):
@@ -136,13 +143,11 @@ class Player(pygame.sprite.Sprite):
             if 'attack' in self.status:
                 self.status = self.status.replace('_attack', '')
 
-
-
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
         if self.attacking:
             if current_time - self.attack_time >= self.attack_cooldown:
-                self.attacking  = False
+                self.attacking = False
                 self.destroy_attack()
 
         if not self.can_switch_weapon:
@@ -154,7 +159,7 @@ class Player(pygame.sprite.Sprite):
         animation = self.animations[self.status]
 
         # loop over frames
-        self.frame_index +=  self.animation_speed
+        self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
@@ -168,5 +173,3 @@ class Player(pygame.sprite.Sprite):
         self.animate()
         self.cooldowns()
         self.move(self.speed)
-
-
