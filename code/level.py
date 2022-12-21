@@ -1,9 +1,11 @@
 import pygame
+from weapon import Weapon
 from numpy.random import randint
 from settings import *
 from tile import Tile
 from support import import_csv_layout, import_folder
 from player import Player
+from debug import debug
 
 
 class Level:
@@ -15,9 +17,11 @@ class Level:
         # sprite group setup
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
-
+        # attack sprite
+        self.current_attack = None
         # sprite setup
         self.create_map()
+
 
     def create_map(self):
         layouts = {
@@ -47,11 +51,22 @@ class Level:
                     else:
                         pass
 
-        self.player = Player((2000, 1430), (self.visible_sprites), self.obstacle_sprites)
+        self.player = Player((2000, 1430), (self.visible_sprites), self.obstacle_sprites, self.create_attack, self.destroy_attack)
+
+    def create_attack(self):
+        self.current_attack = Weapon(self.player, (self.visible_sprites))
+
+    def destroy_attack(self):
+        if self.current_attack:
+            self.current_attack.kill()
+        self.current_attack = None
+
+        pass
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
+        debug(self.player.status)
 
 
 class YSortCameraGroup(pygame.sprite.Group):
