@@ -3,6 +3,7 @@ from weapon import Weapon
 from numpy.random import randint
 from settings import *
 from tile import Tile
+from ui import UI
 from support import import_csv_layout, import_folder
 from player import Player
 from debug import debug
@@ -21,6 +22,8 @@ class Level:
         self.current_attack = None
         # sprite setup
         self.create_map()
+        # user interface
+        self.ui = UI()
 
 
     def create_map(self):
@@ -66,8 +69,7 @@ class Level:
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
-        debug(self.player.status)
-
+        self.ui.display(self.player)
 
 class YSortCameraGroup(pygame.sprite.Group):
 

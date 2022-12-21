@@ -23,9 +23,6 @@ class Player(pygame.sprite.Sprite):
         self.import_player_assets()
         self.obstacle_sprites = obstacle_sprites
 
-        # player movement
-        self.speed = 5
-
         # attacking
         self.attacking = False
         self.attack_cooldown = 400
@@ -39,6 +36,13 @@ class Player(pygame.sprite.Sprite):
         self.can_switch_weapon = True
         self.weapon_switch_time = None
         self.switch_duration_cooldown = 200
+
+        # stats
+        self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 6}
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.exp = 123
+        self.speed = self.stats['speed']
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
